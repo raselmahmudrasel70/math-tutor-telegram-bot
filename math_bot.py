@@ -8,7 +8,7 @@ TOKEN = os.environ.get("TOKEN")
 async def start(update: Update, context):
     msg = (
         "👋 Hi! I'm your Math Tutor Bot 🤖\n\n"
-        "তুমি যেকোনো math problem পাঠাও,তামিম যেভাবে শিখিয়েছে আমি সেভাবেই Solve করব 🤭:\n"
+        "তুমি যেকোনো math problem পাঠাও তামিম যেভাবে শিখিয়েছে আমি সেভাবেই Solve করব 🤭:\n"
      
         "ইংশা আল্লাহ ❤️‍🩹"
          
@@ -43,5 +43,6 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, solve_math))
 
 print("Math Tutor Bot is running...")
 app.run_polling()
+
 
 
