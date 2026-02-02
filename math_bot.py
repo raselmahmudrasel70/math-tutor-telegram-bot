@@ -6,9 +6,9 @@ import sympy as sp
 TOKEN = os.environ.get("TOKEN")
 
 async def start(update: Update, context):
-    msg = (
+   msg = (
     "👋 Hi! I'm your Math Tutor Bot 🤖\n\n"
-    "তুমি যেকোনো math problem পাঠাও ,\n"
+    "তুমি যেকোনো math problem পাঠাও,\n"
     "তামিম যেভাবে শিখিয়েছে আমি সেভাবেই Solve করব 🤭:\n\n"
     "ইংশা আল্লাহ ❤️‍🩹\n"
     "I will explain step-by-step 📘"
@@ -42,6 +42,7 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, solve_math))
 
 print("Math Tutor Bot is running...")
 app.run_polling()
+
 
 
 
