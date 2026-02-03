@@ -1,8 +1,3 @@
-from math_bot import main
-
-if __name__ == "__main__":
-    main()
-
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
