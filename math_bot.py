@@ -1,3 +1,4 @@
+print("TOKEN =", TOKEN)
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -150,3 +151,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
