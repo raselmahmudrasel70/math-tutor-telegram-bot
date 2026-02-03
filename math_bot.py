@@ -10,10 +10,7 @@ from telegram.ext import (
     filters,
 )
 
-# -------- TOKEN --------
 TOKEN = os.environ.get("TOKEN")
-
-# -------- DATA --------
 
 LEVEL_MAP = {
     "5": "Basic Arithmetic & Algebra",
@@ -33,83 +30,108 @@ MODES = {
     "fast": "🔵 Fast Mode",
 }
 
-# -------- COMMANDS --------
+# ---------- KEYBOARDS ----------
+
+def class_keyboard():
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("5", callback_data="class_5"),
+            InlineKeyboardButton("6", callback_data="class_6"),
+            InlineKeyboardButton("7", callback_data="class_7"),
+        ],
+        [
+            InlineKeyboardButton("8", callback_data="class_8"),
+            InlineKeyboardButton("9", callback_data="class_9"),
+            InlineKeyboardButton("10", callback_data="class_10"),
+        ],
+        [
+            InlineKeyboardButton("SSC", callback_data="class_ssc"),
+            InlineKeyboardButton("HSC", callback_data="class_hsc"),
+            InlineKeyboardButton("BSC", callback_data="class_bsc"),
+        ],
+    ])
+
+def mode_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🟢 Tutor", callback_data="mode_tutor")],
+        [InlineKeyboardButton("🟡 Exam", callback_data="mode_exam")],
+        [InlineKeyboardButton("🔵 Fast", callback_data="mode_fast")],
+    ])
+
+# ---------- COMMANDS ----------
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     context.user_data["mode"] = "tutor"
     await update.message.reply_text(
         "আসসালামু আলাইকুম 🌸\n\n"
-        "আমি Premium Math Tutor Bot 🤖\n\n"
-        "📚 আগে তোমার class বলো:\n"
-        "5 / 6 / 9 / ssc / hsc / bsc"
+        "আমি Math Tutor Bot 🤖\n\n"
+        "📚 তোমার class বেছে নাও:",
+        reply_markup=class_keyboard()
     )
 
-async def change_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("🟢 Tutor Mode", callback_data="mode_tutor")],
-        [InlineKeyboardButton("🟡 Exam Mode", callback_data="mode_exam")],
-        [InlineKeyboardButton("🔵 Fast Mode", callback_data="mode_fast")],
-    ]
+async def mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "🎮 Mode select করো:",
-        reply_markup=InlineKeyboardMarkup(keyboard),
+        reply_markup=mode_keyboard()
     )
 
-async def mode_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    mode = query.data.replace("mode_", "")
-    context.user_data["mode"] = mode
-    await query.edit_message_text(f"✅ Mode changed to:\n{MODES[mode]}")
+# ---------- CALLBACKS ----------
 
-# -------- LOGIC --------
-
-async def set_class(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    level = update.message.text.lower().strip()
-    if level not in LEVEL_MAP:
-        await update.message.reply_text("❌ Invalid class\nUse: 5–10, ssc, hsc, bsc")
-        return
+async def class_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    level = q.data.replace("class_", "")
     context.user_data["level"] = level
-    await update.message.reply_text(
+    await q.edit_message_text(
         f"✅ Class set: {level.upper()}\nএখন math problem পাঠাও ✍️"
     )
 
-async def solve_math(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def mode_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    mode = q.data.replace("mode_", "")
+    context.user_data["mode"] = mode
+    await q.edit_message_text(f"✅ Mode set: {MODES[mode]}")
+
+# ---------- SOLVER ----------
+
+async def solve(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if "level" not in context.user_data:
+        await update.message.reply_text("❗ আগে class select করো (/start)")
+        return
+
     text = update.message.text
     mode = context.user_data.get("mode", "tutor")
+
     try:
         result = sp.sympify(text)
         if mode == "fast":
-            reply = f"✅ Answer:\n{result}"
+            reply = f"✅ {result}"
         elif mode == "exam":
-            reply = f"📝 Exam Style\nProblem: {text}\nAnswer: {result}"
+            reply = f"📝 Exam Answer\n{result}"
         else:
             reply = (
-                "👨‍🏫 Tutor Mode\n\n"
-                f"Problem:\n{text}\n\n"
-                f"Working:\n{sp.pretty(result)}\n\n"
-                f"Final Answer:\n{result}"
+                "👨‍🏫 Tutor Explanation\n\n"
+                f"{sp.pretty(result)}\n\n"
+                f"Final Answer: {result}"
             )
         await update.message.reply_text(reply)
-    except Exception:
+    except:
         await update.message.reply_text("❌ Problem বুঝতে পারিনি")
 
-async def text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if "level" not in context.user_data:
-        await set_class(update, context)
-    else:
-        await solve_math(update, context)
-
-# -------- MAIN --------
+# ---------- MAIN ----------
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("mode", change_mode))
-    app.add_handler(CallbackQueryHandler(mode_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_router))
+    app.add_handler(CommandHandler("mode", mode))
+
+    app.add_handler(CallbackQueryHandler(class_handler, pattern="^class_"))
+    app.add_handler(CallbackQueryHandler(mode_handler, pattern="^mode_"))
+
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, solve))
 
     print("Bot running...")
     app.run_polling()
