@@ -42,13 +42,15 @@ async def set_class(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["level"] = level
     context.user_data["topic"] = LEVEL_MAP[level]
 
-    await update.message.reply_text(
-        f"✅ Level set: **{level.upper()}** 📘\n"
-        f"📚 Topics: {LEVEL_MAP[level]}\n\n"
-        "এখন যেকোনো math problem পাঠাও ✍️\n"
-        "আমি তোমার level অনুযায়ী teacher-style বুঝাবো 👨‍🏫"
-    )
-
+   await update.message.reply_text(
+    "আসসালামু আলাইকুম 🌸\n\n"
+    "আমি তোমার Math Tutor Bot 🤖\n"
+    "শুরু করার আগে অবশ্যই class select করতে হবে 📚\n\n"
+    "📘 আমি তামিম হাসান যেভাবে শিখিয়েছে,\n"
+    "একদম সেভাবেই step-by-step বুঝাবো ইনশাআল্লাহ 👨‍🏫\n\n"
+    "Example:\n"
+    "5\n6\n9\nssc\nhsc\nbsc"
+)
 # Solve math
 async def solve_math(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if "level" not in context.user_data:
@@ -65,14 +67,15 @@ async def solve_math(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         result = sp.sympify(text)
 
-        reply = (
-            f"👨‍🏫 Tutor Explanation\n"
-            f"Level: {level.upper()}\n"
-            f"Topic: {topic}\n\n"
-            f"✏️ Problem:\n{text}\n\n"
-            f"📘 Working:\n{sp.pretty(result)}\n\n"
-            f"✅ Final Answer:\n{result}"
-        )
+       reply = (
+    "👨‍🏫 Tutor Explanation (Inspired by Tamim Hasan)\n"
+    f"🎓 Class: {level.upper()}\n"
+    f"📘 Topic: {topic}\n\n"
+    f"✏️ Problem:\n{text}\n\n"
+    f"🧮 Working:\n{sp.pretty(result)}\n\n"
+    f"✅ Final Answer:\n{result}\n\n"
+    "🤲 উত্তর তো পেলে এখন তামিম ভাইয়ার জন্য একটু দোয়া কইরো"
+)
 
         await update.message.reply_text(reply)
 
@@ -97,3 +100,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
